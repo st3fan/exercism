@@ -8,12 +8,13 @@
 ;;; Code:
 
 (defun is-pangram (s)
-  (eq 26 (thread-last s
+  (thread-last s
     (downcase)
     (string-to-list)
-    (seq-filter (lambda (c) (and (>= c 97) (<= c 122))))
+    (seq-filter (lambda (c) (and (>= c ?a) (<= c ?z))))
     (seq-uniq)
-    (seq-length))))
+    (seq-length)
+    (= 26)))
 
 (provide 'pangram)
 ;;; pangram.el ends here
