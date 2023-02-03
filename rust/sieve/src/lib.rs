@@ -44,14 +44,5 @@ impl Iterator for SieveOfEratosthenes {
 }
 
 pub fn primes_up_to(upper_bound: u64) -> Vec<u64> {
-    // let sieve = SieveOfEratosthenes::new(upper_bound);
-    // let mut v: Vec<u64> = Vec::new();
-    // for i in 0..sieve.sieve.len() {
-    //     if sieve.sieve[i] {
-    //         v.push(i as u64);
-    //     }
-    // }
-    // return v;
-
     SieveOfEratosthenes::new(upper_bound).collect::<Vec<u64>>()
 }
