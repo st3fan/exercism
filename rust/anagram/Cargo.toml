@@ -4,4 +4,4 @@ name = "anagram"
 version = "0.0.0"
 
 [dependencies]
-unicode-segmentation = "1.10.1"
+unicode-segmentation = "1.10.0"
