@@ -16,8 +16,6 @@ pub fn classify(num: u64) -> Option<Classification> {
 
     let sum: u64 = factors(num).iter().sum();
 
-    println!("Factors: {:?}", factors(num));
-
     if sum == num {
         Some(Classification::Perfect)
     } else {
