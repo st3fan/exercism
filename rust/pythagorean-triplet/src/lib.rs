@@ -10,9 +10,9 @@ use std::collections::HashSet;
 pub fn find(sum: u32) -> HashSet<[u32; 3]> {
     let fsum = sum as f64;
     let mut triplets = HashSet::new();
-    for a in 1..sum {
+    for a in 1..sum / 2 {
         let a = a as f64;
-        for b in 1..sum {
+        for b in 1..sum / 2 {
             let b = b as f64;
             let c = ((a * a + b * b) as f64).sqrt();
             if a < b && b < c {
