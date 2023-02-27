@@ -32,13 +32,10 @@ impl<T> SimpleLinkedList<T> {
             if node.is_none() {
                 break;
             }
-
             n += 1;
-
             let t = node.as_ref().unwrap();
             node = &t.next;
         }
-
         n
     }
 
@@ -51,8 +48,7 @@ impl<T> SimpleLinkedList<T> {
     }
 
     pub fn pop(&mut self) -> Option<T> {
-        let r = self.head.take();
-        if let Some(node) = r {
+        if let Some(node) = self.head.take() {
             self.head = node.next;
             return Some(node.data);
         }
@@ -60,10 +56,7 @@ impl<T> SimpleLinkedList<T> {
     }
 
     pub fn peek(&self) -> Option<&T> {
-        if let Some(node) = self.head.as_ref() {
-            return Some(&node.data);
-        }
-        None
+        self.head.as_ref().map(|node| &node.data)
     }
 
     #[must_use]
@@ -84,11 +77,11 @@ impl<T> SimpleLinkedList<T> {
 
 impl<T> FromIterator<T> for SimpleLinkedList<T> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        let mut linked_list = SimpleLinkedList::new();
-        for item in iter {
-            linked_list.push(item);
-        }
-        linked_list
+        iter.into_iter()
+            .fold(SimpleLinkedList::new(), |mut accumulator, element| {
+                accumulator.push(element);
+                return accumulator;
+            })
     }
 }
 
