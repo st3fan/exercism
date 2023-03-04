@@ -4,5 +4,5 @@ name = "robot-name"
 version = "0.0.0"
 
 [dependencies]
-fastrand = "1.9.0"
+fastrand = "=1.8.0"
 lazy_static = "1.4.0"
