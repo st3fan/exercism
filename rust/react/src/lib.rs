@@ -54,7 +54,6 @@ struct ComputeCell<'a, T> {
 }
 
 pub struct Reactor<'a, T> {
-    cell_id: usize,
     input_cells: HashMap<InputCellId, InputCell<T>>,
     compute_cells: HashMap<ComputeCellId, ComputeCell<'a, T>>,
 }
@@ -63,7 +62,6 @@ pub struct Reactor<'a, T> {
 impl<'a, T: Copy + PartialEq + Default> Reactor<'a, T> {
     pub fn new() -> Self {
         Self {
-            cell_id: 0,
             input_cells: HashMap::new(),
             compute_cells: HashMap::new(),
         }
@@ -71,8 +69,7 @@ impl<'a, T: Copy + PartialEq + Default> Reactor<'a, T> {
 
     // Creates an input cell with the specified initial value, returning its ID.
     pub fn create_input(&mut self, initial: T) -> InputCellId {
-        self.cell_id += 1;
-        let cell_id = InputCellId(self.cell_id);
+        let cell_id = InputCellId(self.input_cells.len());
         self.input_cells.insert(cell_id, InputCell::new(initial));
         cell_id
     }
@@ -95,27 +92,26 @@ impl<'a, T: Copy + PartialEq + Default> Reactor<'a, T> {
         dependencies: &[CellId],
         compute_func: F,
     ) -> Result<ComputeCellId, CellId> {
+        // Check if the dependencies exist
         for dependency in dependencies {
             let exists = match dependency {
-                CellId::Input(input_cell_id) => self.input_cells.contains_key(&input_cell_id),
-                CellId::Compute(compute_cell_id) => {
-                    self.compute_cells.contains_key(&compute_cell_id)
-                }
+                CellId::Input(id) => self.input_cells.contains_key(&id),
+                CellId::Compute(id) => self.compute_cells.contains_key(&id),
             };
-
             if !exists {
                 return Err(*dependency);
             }
         }
 
-        self.cell_id += 1;
-        let compute_cell_id = ComputeCellId(self.cell_id);
+        let compute_cell_id = ComputeCellId(self.compute_cells.len());
 
+        // Collect the dependency values so that we can calculate the compute cell's initial value.
         let values: Vec<T> = dependencies
             .iter()
             .map(|id| self.value(*id).unwrap())
             .collect();
 
+        // Finally create the new compute cell
         self.compute_cells.insert(
             compute_cell_id,
             ComputeCell {
@@ -125,7 +121,6 @@ impl<'a, T: Copy + PartialEq + Default> Reactor<'a, T> {
                 callbacks: HashMap::new(),
             },
         );
-
         Ok(compute_cell_id)
     }
 
@@ -217,14 +212,10 @@ impl<'a, T: Copy + PartialEq + Default> Reactor<'a, T> {
         callback: CB,
     ) -> Option<CallbackId> {
         let compute_cell = self.compute_cells.get_mut(&id)?;
-
-        self.cell_id += 1;
-        let callback_id = CallbackId(self.cell_id);
-
+        let callback_id = CallbackId(compute_cell.callbacks.len());
         compute_cell
             .callbacks
             .insert(callback_id, Box::new(callback));
-
         return Some(callback_id);
     }
 
@@ -241,11 +232,9 @@ impl<'a, T: Copy + PartialEq + Default> Reactor<'a, T> {
         let Some(compute_cell) = self.compute_cells.get_mut(&cell_id) else {
             return Err(RemoveCallbackError::NonexistentCell);
         };
-
         if compute_cell.callbacks.remove(&callback_id).is_none() {
             return Err(RemoveCallbackError::NonexistentCallback);
         }
-
         Ok(())
     }
 }
